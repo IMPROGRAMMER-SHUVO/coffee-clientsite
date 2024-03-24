@@ -1,7 +1,7 @@
 //U44OoOgqxhJHsaBO
 //shuvodey1102
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express=require('express')
 const cors=require('cors')
 require('dotenv').config()
@@ -33,6 +33,93 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+const coffeeCollect=client.db('coffeeDB').collection('cofee')
+
+//step 3
+
+app.delete('/coffee/:id',async(req,res)=>{
+  const id=req.params.id;
+console.log('delee id form ',id)
+const query={_id: new ObjectId(id)}
+const result=await coffeeCollect.deleteOne(query)
+res.send(result)
+
+})
+//step 4
+app.get('/coffee/:id',async(req,res)=>{
+  const id=req.params.id;
+  const query={_id: new ObjectId(id)}
+  const result=await coffeeCollect.findOne(query)
+  res.send(result)
+})
+//setp5
+app.put('/coffee/:id',async(req,res)=>{
+  const id=req.params.id;
+
+  const coffeup=req.body
+  console.log(id,coffeup)
+  const filer={_id: new ObjectId(id)}
+  const option={upsert:true}
+  const upadated={
+    $set:{
+      name:coffeup.name,
+      photo:coffeup.photo,
+      category:coffeup.category,
+      chef:coffeup.chef,
+      teste:coffeup.teste,
+      Details:coffeup.Details,
+      Supplier:coffeup.Supplier
+    }
+  }
+const result=await coffeeCollect.updateOne(filer,upadated,option)
+ res.send(result);
+})
+
+
+
+
+
+//step 2
+app.get('/coffee',async(req,res)=>{
+  const coursor=coffeeCollect.find()
+  const result=await coursor.toArray()
+  res.send(result)
+  })
+  
+
+//step 1
+app.post('/coffee',async(req,res)=>{
+  const coffee=req.body;
+  console.log('post coffe is suxxe',coffee)
+  const result= await coffeeCollect.insertOne(coffee)
+  res.send(result)
+})
+
+
+
+
+
+
+
+
+
+
+
+
+//step 1
+// app.post('/coffee',async(req,res)=>{
+//   const newCoffee=req.body;
+//   console.log(newCoffee)
+// })
+
+
+
+
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
