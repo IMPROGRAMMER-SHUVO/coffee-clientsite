@@ -35,6 +35,8 @@ async function run() {
 
 const coffeeCollect=client.db('coffeeDB').collection('cofee')
 
+//Firebase for this
+const userCollection=client.db('userCollections').collection('user')
 //step 3
 
 app.delete('/coffee/:id',async(req,res)=>{
@@ -113,8 +115,44 @@ app.post('/coffee',async(req,res)=>{
 // })
 
 
+//user releted  api
+app.post('/user',async(req,res)=>{
+  const user=req.body;
+  console.log(user)
+  const result=await userCollection.insertOne(user)
+  res.send(result)
+});
 
+//red data
+app.get('/user',async(req,res)=>{
+  const cursor=userCollection.find();
+  const users=await cursor.toArray();
+  res.send(users)
 
+})
+
+//delete data
+app.delete('/user/:id',async(req,res)=>{
+  const id =req.params.id;
+ const query={_id: new ObjectId(id)}
+ const result=await userCollection.deleteOne(query)
+ res.send(result)
+
+})
+//updat data
+app.patch('/user',async(req,res)=>{
+  const user=req.body;
+ const filter={
+  email:user.email
+ }
+ const upadated={
+  $set:{
+    lastLoggedAt:user.lastLoggedAt
+  }
+ }
+ const result=await userCollection.updateOne(filter,upadated)
+ res.send(result)
+})
 
 
 
